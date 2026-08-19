@@ -1,0 +1,83 @@
+diff --git a/app/src/main/java/com/termux/app/TermuxInstaller.java b/app/src/main/java/com/termux/app/TermuxInstaller.java
+index b141499..9e1a39f 100644
+--- a/app/src/main/java/com/termux/app/TermuxInstaller.java
++++ b/app/src/main/java/com/termux/app/TermuxInstaller.java
+@@ -27,6 +27,7 @@ import java.io.BufferedReader;
+ import java.io.ByteArrayInputStream;
+ import java.io.File;
+ import java.io.FileOutputStream;
++import java.io.InputStream;
+ import java.io.InputStreamReader;
+ import java.util.ArrayList;
+ import java.util.List;
+@@ -221,6 +222,9 @@ final class TermuxInstaller {
+                     // Recreate env file since termux prefix was wiped earlier
+                     TermuxShellEnvironment.writeEnvironmentToFile(activity);
+ 
++                    // 方案B: 首次 bootstrap 成功后，执行预装脚本自动装 DeepSeek Harness
++                    runFirstBootScript(activity);
++
+                     activity.runOnUiThread(whenDone);
+ 
+                 } catch (final Exception e) {
+@@ -371,6 +375,60 @@ final class TermuxInstaller {
+         }.start();
+     }
+ 
++    /**
++     * 方案B：首次 bootstrap 成功后，把 asset 里的 first-boot.sh 及配套文件拷到
++     * ~/.termux 并后台执行，自动完成 Node 工具链 + DeepSeek Harness 安装。
++     */
++    private static void runFirstBootScript(final Context context) {
++        try {
++            final File termuxDataHome = TermuxConstants.TERMUX_DATA_HOME_DIR;
++            FileUtils.createDirectoryFile(termuxDataHome.getAbsolutePath());
++
++            final File firstBootFile = new File(termuxDataHome, "first-boot.sh");
++            copyAsset(context, "first-boot.sh", firstBootFile);
++            Os.chmod(firstBootFile.getAbsolutePath(), 0700);
++
++            final File extraDir = new File(termuxDataHome, "first-boot-extra");
++            FileUtils.createDirectoryFile(extraDir.getAbsolutePath());
++            final String[] extras = context.getAssets().list("first-boot-extra");
++            if (extras != null) {
++                for (final String name : extras) {
++                    copyAsset(context, "first-boot-extra/" + name, new File(extraDir, name));
++                }
++            }
++
++            Logger.logInfo(LOG_TAG, "Running first-boot provisioning script (DeepSeek Harness).");
++            new Thread(() -> {
++                try {
++                    final ProcessBuilder pb = new ProcessBuilder(
++                        TermuxConstants.TERMUX_BIN_PREFIX_DIR_PATH + "/bash",
++                        firstBootFile.getAbsolutePath());
++                    pb.environment().putAll(new TermuxShellEnvironment().getEnvironment(context, false));
++                    pb.redirectErrorStream(true);
++                    final Process process = pb.start();
++                    final int exit = process.waitFor();
++                    Logger.logInfo(LOG_TAG, "first-boot provisioning finished with exit code " + exit + ".");
++                } catch (Exception e) {
++                    Logger.logStackTraceWithMessage(LOG_TAG, "first-boot provisioning failed", e);
++                }
++            }).start();
++        } catch (Exception e) {
++            Logger.logStackTraceWithMessage(LOG_TAG, "first-boot setup failed", e);
++        }
++    }
++
++    /** 把单个 asset 拷贝到目标文件。 */
++    private static void copyAsset(final Context context, final String assetPath, final File targetFile) throws Exception {
++        try (InputStream in = context.getAssets().open(assetPath);
++             FileOutputStream out = new FileOutputStream(targetFile)) {
++            final byte[] buffer = new byte[8192];
++            int read;
++            while ((read = in.read(buffer)) != -1) {
++                out.write(buffer, 0, read);
++            }
++        }
++    }
++
+     private static Error ensureDirectoryExists(File directory) {
+         return FileUtils.createDirectoryFile(directory.getAbsolutePath());
+     }

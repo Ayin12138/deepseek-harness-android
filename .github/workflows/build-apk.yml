@@ -17,8 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 克隆 termux-app（自定义壳）
-        run: |
-          git clone --depth 1 https://github.com/termux/termux-app termux-app
+        run: git clone --depth 1 https://github.com/termux/termux-app termux-app
 
       - name: 注入方案 B 首启装机资源
         run: |
@@ -26,9 +25,14 @@ jobs:
           cp apk/first-boot.sh termux-app/app/src/main/assets/
           cp dsh-termux/mobile/mobile.css termux-app/app/src/main/assets/first-boot-extra/
           cp dsh-termux/env/dsh.env.example termux-app/app/src/main/assets/first-boot-extra/
-          # TODO(方案B): 在此应用补丁，让 termux-app 首启执行 first-boot.sh
-          #   patch -d termux-app -p1 < apk/termux-app-firstboot.patch
-          echo "assets:"; ls -R termux-app/app/src/main/assets | head -40
+          echo "assets:"; find termux-app/app/src/main/assets -type f | sort
+
+      - name: 应用首启装机补丁（让 termux-app 首启执行 first-boot.sh）
+        run: |
+          cd termux-app
+          git apply --check ../apk/termux-app-firstboot.patch
+          git apply ../apk/termux-app-firstboot.patch
+          cd ..
 
       - name: 设置 JDK 17
         uses: actions/setup-java@v4
@@ -39,7 +43,8 @@ jobs:
       - name: 设置 Android SDK
         uses: android-actions/setup-android@v3
 
-      # termux-app 需要 NDK；如构建报缺 NDK，取消注释并指定与 termux-app 匹配的版本
+      # termux-app 需要 NDK（编译 termux-bootstrap 原生库）。AGP 通常会自动下载，
+      # 若构建报缺 NDK，取消注释并改成与 termux-app/build.gradle 匹配的版本：
       # - name: 安装 NDK
       #   run: sdkmanager "ndk;26.3.11579264"
 

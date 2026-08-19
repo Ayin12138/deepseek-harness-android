@@ -35,6 +35,7 @@ deepseek-harness-android/
 │   └── build-custom-apk.md       ← 编译自定义 APK 的总指南
 ├── apk/                          ← 方案 B：自定义 termux-app APK
 │   ├── first-boot.sh             ← 首次启动自动装 DSH（打进 APK asset）
+│   ├── termux-app-firstboot.patch ← 首启回调补丁（bootstrap 后执行 first-boot.sh）
 │   └── README.md                 ← 如何把它挂进 termux-app 并编译
 ├── bootstrap/                    ← 方案 B 进阶：真·预置 rootfs（Node+DSH 内建）
 │   ├── provision-rootfs.sh       ← 在 termux-packages 环境里预置 DSH
@@ -86,6 +87,6 @@ bash install.sh && bash configure.sh && bash start.sh
 
 ## 后续路线（方案 B 完整落地）
 
-1. `apk/first-boot.sh` 首启自动装机 → 用户装一个 APK 即自动配置（零手动步骤）。
+1. ✅ `apk/first-boot.sh` + `apk/termux-app-firstboot.patch` 首启自动装机 → 补丁已写好并接入 CI；用户在 GitHub Actions 触发一次即可出 APK（零手动步骤）。
 2. `bootstrap/` 真·预置 rootfs → 把 Node+DSH 直接烤进 bootstrap，首启离线可用（进阶、构建重）。
 3. GitHub Actions 云端出 APK → 无需本地 Android SDK。
