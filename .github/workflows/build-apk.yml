@@ -1,0 +1,59 @@
+name: Build DSH Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - '**.md'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 本仓库
+        uses: actions/checkout@v4
+
+      - name: 克隆 termux-app（自定义壳）
+        run: |
+          git clone --depth 1 https://github.com/termux/termux-app termux-app
+
+      - name: 注入方案 B 首启装机资源
+        run: |
+          mkdir -p termux-app/app/src/main/assets/first-boot-extra
+          cp apk/first-boot.sh termux-app/app/src/main/assets/
+          cp dsh-termux/mobile/mobile.css termux-app/app/src/main/assets/first-boot-extra/
+          cp dsh-termux/env/dsh.env.example termux-app/app/src/main/assets/first-boot-extra/
+          # TODO(方案B): 在此应用补丁，让 termux-app 首启执行 first-boot.sh
+          #   patch -d termux-app -p1 < apk/termux-app-firstboot.patch
+          echo "assets:"; ls -R termux-app/app/src/main/assets | head -40
+
+      - name: 设置 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 设置 Android SDK
+        uses: android-actions/setup-android@v3
+
+      # termux-app 需要 NDK；如构建报缺 NDK，取消注释并指定与 termux-app 匹配的版本
+      # - name: 安装 NDK
+      #   run: sdkmanager "ndk;26.3.11579264"
+
+      - name: 授予可执行权限
+        run: chmod +x termux-app/gradlew
+
+      - name: 编译 Debug APK
+        run: |
+          cd termux-app
+          ./gradlew --no-daemon :app:assembleDebug
+
+      - name: 上传 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepseek-harness-android-debug
+          path: termux-app/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

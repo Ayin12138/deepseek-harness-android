@@ -1,0 +1,19 @@
+# ── 密钥与凭证（绝不提交）────────────────────────────
+.env
+.credentials.yaml
+*.keystore
+*.jks
+*.p12
+*.key
+
+# ── 构建产物 ─────────────────────────────────────────
+*.apk
+*.aab
+termux-app/
+node_modules/
+dist/
+bootstrap/build/
+
+# ── 系统/编辑器 ──────────────────────────────────────
+.DS_Store
+*.swp

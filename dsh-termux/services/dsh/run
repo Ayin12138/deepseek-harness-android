@@ -1,0 +1,13 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# termux-services (runit) 服务定义：常驻 dsh web，崩溃自动拉起。
+# 安装: pkg install -y termux-services && 重开 Termux
+# 启用: sv-enable dsh ;  查看: sv status dsh ;  停: sv down dsh
+exec 2>&1
+
+DSH_HOME_DIR="${DSH_HOME:-$HOME/.dsh}"
+PORT="${DSH_PORT:-3080}"
+
+[ -f "$DSH_HOME_DIR/.env" ] && set -a && . "$DSH_HOME_DIR/.env" && set +a
+
+echo "dsh web 启动中 (127.0.0.1:$PORT) ..."
+exec dsh web --port "$PORT"
