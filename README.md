@@ -36,9 +36,11 @@ deepseek-harness-android/
 ├── apk/                          ← 方案 B：自定义 termux-app APK
 │   ├── first-boot.sh             ← 首次启动自动装 DSH（打进 APK asset）
 │   ├── termux-app-firstboot.patch ← 首启回调补丁（bootstrap 后执行 first-boot.sh）
+│   ├── termux-app-rename.patch    ← 改包名补丁（与官方 Termux 共存用）
 │   └── README.md                 ← 如何把它挂进 termux-app 并编译
-├── bootstrap/                    ← 方案 B 进阶：真·预置 rootfs（Node+DSH 内建）
-│   ├── provision-rootfs.sh       ← 在 termux-packages 环境里预置 DSH
+├── bootstrap/                    ← 方案 B：改包名共存 + 自定义 bootstrap
+│   ├── build-custom-bootstrap.sh ← 一次性重建自定义前缀 bootstrap
+│   ├── provision-rootfs.sh       ← （进阶）把 DSH 烤进 rootfs
 │   └── README.md
 └── .github/workflows/
     └── build-apk.yml             ← GitHub Actions 云端编译 APK
@@ -90,3 +92,4 @@ bash install.sh && bash configure.sh && bash start.sh
 1. ✅ `apk/first-boot.sh` + `apk/termux-app-firstboot.patch` 首启自动装机 → 补丁已写好并接入 CI；用户在 GitHub Actions 触发一次即可出 APK（零手动步骤）。
 2. `bootstrap/` 真·预置 rootfs → 把 Node+DSH 直接烤进 bootstrap，首启离线可用（进阶、构建重）。
 3. GitHub Actions 云端出 APK → 无需本地 Android SDK。
+4. 「与官方 Termux 共存」：改包名补丁 + 一次性重建 bootstrap（见 [`bootstrap/README.md`](bootstrap/README.md)、`.github/workflows/build-apk-renamed.yml`）。

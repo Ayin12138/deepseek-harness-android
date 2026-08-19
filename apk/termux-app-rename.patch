@@ -1,0 +1,77 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 33c88d1..a7d5337 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -41,6 +41,7 @@ android {
+     }
+ 
+     defaultConfig {
++        applicationId "com.dsh.termux"
+         minSdkVersion project.properties.minSdkVersion.toInteger()
+         targetSdkVersion project.properties.targetSdkVersion.toInteger()
+         versionCode 118
+@@ -51,8 +52,8 @@ android {
+ 
+         buildConfigField "String", "TERMUX_PACKAGE_VARIANT", "\"" + project.ext.packageVariant + "\"" // Used by TermuxApplication class
+ 
+-        manifestPlaceholders.TERMUX_PACKAGE_NAME = "com.termux"
+-        manifestPlaceholders.TERMUX_APP_NAME = "Termux"
++        manifestPlaceholders.TERMUX_PACKAGE_NAME = "com.dsh.termux"
++        manifestPlaceholders.TERMUX_APP_NAME = "DSH Termux"
+         manifestPlaceholders.TERMUX_API_APP_NAME = "Termux:API"
+         manifestPlaceholders.TERMUX_BOOT_APP_NAME = "Termux:Boot"
+         manifestPlaceholders.TERMUX_FLOAT_APP_NAME = "Termux:Float"
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+index cbd2992..9fa38d5 100644
+--- a/app/src/main/res/values/strings.xml
++++ b/app/src/main/res/values/strings.xml
+@@ -1,8 +1,8 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ 
+ <!DOCTYPE resources [
+-    <!ENTITY TERMUX_PACKAGE_NAME "com.termux">
+-    <!ENTITY TERMUX_APP_NAME "Termux">
++    <!ENTITY TERMUX_PACKAGE_NAME "com.dsh.termux">
++    <!ENTITY TERMUX_APP_NAME "DSH Termux">
+     <!ENTITY TERMUX_API_APP_NAME "Termux:API">
+     <!ENTITY TERMUX_BOOT_APP_NAME "Termux:Boot">
+     <!ENTITY TERMUX_FLOAT_APP_NAME "Termux:Float">
+diff --git a/termux-shared/src/main/java/com/termux/shared/termux/TermuxConstants.java b/termux-shared/src/main/java/com/termux/shared/termux/TermuxConstants.java
+index 534936f..f5bb63f 100644
+--- a/termux-shared/src/main/java/com/termux/shared/termux/TermuxConstants.java
++++ b/termux-shared/src/main/java/com/termux/shared/termux/TermuxConstants.java
+@@ -347,9 +347,9 @@ public final class TermuxConstants {
+      */
+ 
+     /** Termux app name */
+-    public static final String TERMUX_APP_NAME = "Termux"; // Default: "Termux"
++    public static final String TERMUX_APP_NAME = "DSH Termux"; // Default: "DSH Termux"
+     /** Termux package name */
+-    public static final String TERMUX_PACKAGE_NAME = "com.termux"; // Default: "com.termux"
++    public static final String TERMUX_PACKAGE_NAME = "com.dsh.termux"; // Default: "com.dsh.termux"
+     /** Termux GitHub repo name */
+     public static final String TERMUX_GITHUB_REPO_NAME = "termux-app"; // Default: "termux-app"
+     /** Termux GitHub repo url */
+diff --git a/termux-shared/src/main/res/values/strings.xml b/termux-shared/src/main/res/values/strings.xml
+index d585e24..8711ecf 100644
+--- a/termux-shared/src/main/res/values/strings.xml
++++ b/termux-shared/src/main/res/values/strings.xml
+@@ -1,15 +1,15 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ 
+ <!DOCTYPE resources [
+-    <!ENTITY TERMUX_PACKAGE_NAME "com.termux">
+-    <!ENTITY TERMUX_APP_NAME "Termux">
++    <!ENTITY TERMUX_PACKAGE_NAME "com.dsh.termux">
++    <!ENTITY TERMUX_APP_NAME "DSH Termux">
+     <!ENTITY TERMUX_API_APP_NAME "Termux:API">
+     <!ENTITY TERMUX_BOOT_APP_NAME "Termux:Boot">
+     <!ENTITY TERMUX_FLOAT_APP_NAME "Termux:Float">
+     <!ENTITY TERMUX_STYLING_APP_NAME "Termux:Styling">
+     <!ENTITY TERMUX_TASKER_APP_NAME "Termux:Tasker">
+     <!ENTITY TERMUX_WIDGET_APP_NAME "Termux:Widget">
+-    <!ENTITY TERMUX_PREFIX_DIR_PATH "/data/data/com.termux/files/usr">
++    <!ENTITY TERMUX_PREFIX_DIR_PATH "/data/data/com.dsh.termux/files/usr">
+     ]>
+ 
+ <resources>
